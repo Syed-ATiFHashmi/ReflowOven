@@ -1,0 +1,2 @@
+#pragma once
+enum ReflowState{IDLE,PREHEAT,SOAK,REFLOW,COOL,COMPLETE,ABORT};
