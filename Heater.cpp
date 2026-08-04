@@ -1,6 +1,6 @@
+#include <Arduino.h>
 #include "Heater.h"
 #include "Config.h"
-#include <Arduino.h>
 
 static int currentPower = 0;
 

@@ -31,13 +31,21 @@ color:#00ff55;
 <h2>ESP8266 Reflow Oven</h2>
 
 <div id="temp">0.0°C</div>
+<div id="info">Target: 0.0°C | Power: 0 | State: IDLE</div>
+<div>
+  <button id="startButton">Start Reflow</button>
+  <button id="stopButton">Stop</button>
+</div>
 
 <canvas id="graph" width="900" height="450"></canvas>
 
 <script>
 const canvas=document.getElementById("graph");
 const ctx=canvas.getContext("2d");
+const startButton=document.getElementById("startButton");
+const stopButton=document.getElementById("stopButton");
 let values=[];
+
 function drawGraph()
 {
 ctx.fillStyle="#111";
@@ -81,18 +89,35 @@ ctx.lineTo(x,y);
 }
 ctx.stroke();
 }
+
 function update()
 {
 fetch("/data")
 .then(r=>r.json())
 .then(j=>{
  document.getElementById("temp").innerHTML=j.temp.toFixed(1)+" °C";
+ document.getElementById("info").innerHTML = "Target: "+j.target.toFixed(1)+" °C | Power: "+j.power+" | State: "+j.state;
  values.push(j.temp);
  if(values.length>300)
  values.shift();
  drawGraph();
 });
 }
+
+function startReflow()
+{
+ fetch("/start").then(r=>r.json()).then(j=>{
+   if(!j.started) alert("Reflow already running or cannot start.");
+ });
+}
+
+function stopReflow()
+{
+ fetch("/stop").then(r=>r.json()).then(_=>{});
+}
+
+startButton.addEventListener("click", startReflow);
+stopButton.addEventListener("click", stopReflow);
 setInterval(update,250);
 </script>
 

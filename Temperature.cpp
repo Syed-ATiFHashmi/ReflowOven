@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <SPI.h>
 #include "Config.h"
 #include "Temperature.h"

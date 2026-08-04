@@ -1,7 +1,9 @@
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include "WebServer.h"
 #include "Temperature.h"
+#include "ReflowEngine.h"
 #include "WebPage.h"
 
 const char* ssid = "ActNet";
@@ -15,8 +17,20 @@ static void handleRoot() {
 
 static void handleData() {
   float temp = getTemperature();
-  String json = "{\"temp\":" + String(temp, 1) + "}";
+  float target = getReflowTarget();
+  int power = getReflowPower();
+  String json = "{\"temp\":" + String(temp, 1) + ",\"target\":" + String(target, 1) + ",\"power\":" + String(power) + ",\"state\":\"" + String(getReflowStateName()) + "\"}";
   server.send(200, "application/json", json);
+}
+
+static void handleStart() {
+  bool started = startReflow();
+  server.send(200, "application/json", String("{\"started\":") + (started ? "true" : "false") + "}");
+}
+
+static void handleStop() {
+  stopReflow();
+  server.send(200, "application/json", "{\"stopped\":true}");
 }
 
 void beginWebServer() {
@@ -33,6 +47,8 @@ void beginWebServer() {
 
   server.on("/", handleRoot);
   server.on("/data", handleData);
+  server.on("/start", handleStart);
+  server.on("/stop", handleStop);
   server.begin();
 }
 
